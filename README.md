@@ -26,7 +26,7 @@ Hello!
 #=> 1001
 ```
 
-It will also fail when you try to generate the assertion does not match.
+It will also fail if any assertions don't match up.
 
 Usage
 -----
