@@ -30,5 +30,8 @@ It will also fail if any assertions don't match up.
 
 Usage
 -----
+
+```
 gem install docu
 docu README.md.docu
+```
