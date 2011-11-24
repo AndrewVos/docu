@@ -10,10 +10,12 @@ module Docu
       successes = 0
 
       contents = File.read(path)
+
       contents.scan(/:example:((?:(?!^:end:).)*)/m).flatten.each do |example|
-        if example.include?("#=>")
-            expected = example.scan(/#=>\s*(.*)/).first.first
-            actual = eval(example).inspect
+        if example =~ /#\s*=>\s*(.+)/
+          expected = $1
+          actual = eval(example).inspect
+
           if actual == expected
             successes += 1
           else
