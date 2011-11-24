@@ -1,7 +1,8 @@
 module Docu
   class ExecutesExamples
-    def initialize output
+    def initialize output, kernel = Kernel
       @output = output
+      @kernel = kernel
     end
 
     def execute path
@@ -30,6 +31,7 @@ module Docu
         errors.each do |error|
           @output.puts error
         end
+        @kernel.exit 1
       else
         File.open(path.chomp(File.extname(path)), "w") do |file|
           file.write contents.gsub(":example:\n", "").gsub(":end:\n", "")

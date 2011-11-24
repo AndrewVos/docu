@@ -16,10 +16,21 @@ module Docu
     end
   end
 
+  class SpyKernel
+    attr_accessor :exit_status
+    def exit status
+      @exit_status = status
+    end
+  end
+
   describe ExecutesExamples do
     after do
       File.delete("TEST_README.md") if File.exist?("TEST_README.md")
       File.delete("TEST_README.md.docu") if File.exist?("TEST_README.md.docu")
+    end
+
+    let :kernel do
+      SpyKernel.new
     end
 
     it "writes out some text" do
@@ -27,7 +38,7 @@ module Docu
       File.open("TEST_README.md.docu", "w") do |file|
         file.puts
       end
-      Docu::ExecutesExamples.new(output_spy).execute("TEST_README.md.docu")
+      Docu::ExecutesExamples.new(output_spy, kernel).execute("TEST_README.md.docu")
       output_spy.output.must_include "Executing Examples"
     end
 
@@ -48,18 +59,27 @@ module Docu
 
       it "mentions failure and success" do
         output_spy = OutputSpy.new
-        Docu::ExecutesExamples.new(output_spy).execute("TEST_README.md.docu")
+        Docu::ExecutesExamples.new(output_spy, kernel).execute("TEST_README.md.docu")
         output_spy.output.must_include "1 example(s) failed, 1 example(s) passed"
       end
 
       it "outputs errors" do
         output_spy = OutputSpy.new
-        Docu::ExecutesExamples.new(output_spy).execute("TEST_README.md.docu")
+        Docu::ExecutesExamples.new(output_spy, kernel).execute("TEST_README.md.docu")
         output_spy.output.must_include "Assertion does not match example. Expected \"2\" to equal \"23\""
       end
 
       it "does not write the file" do
+        output_spy = OutputSpy.new
+        Docu::ExecutesExamples.new(output_spy, kernel).execute("TEST_README.md.docu")
         File.exist?("TEST_README.md").must_equal false
+      end
+
+      it "exits with non-zero exit status" do
+        output_spy = OutputSpy.new
+        executes_examples = Docu::ExecutesExamples.new(output_spy, kernel)
+        Docu::ExecutesExamples.new(output_spy, kernel).execute("TEST_README.md.docu")
+        kernel.exit_status.must_equal 1
       end
     end
 
