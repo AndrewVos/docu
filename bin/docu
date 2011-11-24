@@ -2,4 +2,4 @@
 $:.unshift(File.dirname(__FILE__) + '/../lib')
 
 require "docu"
-Docu::ExecutesExamples.new(Kernel).execute(ARGV.first)
+Docu::ExecutesExamples.new.execute(ARGV.first)

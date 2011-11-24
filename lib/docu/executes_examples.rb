@@ -1,12 +1,11 @@
 module Docu
   class ExecutesExamples
-    def initialize output, kernel = Kernel
-      @output = output
+    def initialize kernel = Kernel
       @kernel = kernel
     end
 
     def execute path
-      @output.puts "Executing Examples"
+      @kernel.puts "Executing Examples"
       errors = []
       successes = 0
 
@@ -25,11 +24,11 @@ module Docu
         end
       end
 
-      @output.puts "#{errors.size} example(s) failed, #{successes} example(s) passed"
+      @kernel.puts "#{errors.size} example(s) failed, #{successes} example(s) passed"
 
       if errors.any?
         errors.each do |error|
-          @output.puts error
+          @kernel.puts error
         end
         @kernel.exit 1
       else

@@ -35,3 +35,18 @@ Usage
 gem install docu
 docu README.md.docu
 ```
+
+Rake Task
+---------
+
+```ruby
+require "docu/rake/task"
+
+Docu::Rake::Task.new do |task|
+  task.file = "README.md.docu"
+end
+```
+
+```
+rake docu
+```

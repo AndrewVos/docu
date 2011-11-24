@@ -6,18 +6,16 @@ require "minitest/autorun"
 require "minitest/spec"
 
 module Docu
-  class OutputSpy
-    attr_accessor :output
+  class SpyKernel
+    attr_accessor :output, :exit_status
+
     def puts(*a)
       @output ||= []
       a.each do |i|
         @output << i
       end
     end
-  end
 
-  class SpyKernel
-    attr_accessor :exit_status
     def exit status
       @exit_status = status
     end
@@ -34,12 +32,11 @@ module Docu
     end
 
     it "writes out some text" do
-      output_spy = OutputSpy.new
       File.open("TEST_README.md.docu", "w") do |file|
         file.puts
       end
-      Docu::ExecutesExamples.new(output_spy, kernel).execute("TEST_README.md.docu")
-      output_spy.output.must_include "Executing Examples"
+      Docu::ExecutesExamples.new(kernel).execute("TEST_README.md.docu")
+      kernel.output.must_include "Executing Examples"
     end
 
     describe "one failing example and one passing example" do
@@ -58,27 +55,22 @@ module Docu
       end
 
       it "mentions failure and success" do
-        output_spy = OutputSpy.new
-        Docu::ExecutesExamples.new(output_spy, kernel).execute("TEST_README.md.docu")
-        output_spy.output.must_include "1 example(s) failed, 1 example(s) passed"
+        Docu::ExecutesExamples.new(kernel).execute("TEST_README.md.docu")
+        kernel.output.must_include "1 example(s) failed, 1 example(s) passed"
       end
 
       it "outputs errors" do
-        output_spy = OutputSpy.new
-        Docu::ExecutesExamples.new(output_spy, kernel).execute("TEST_README.md.docu")
-        output_spy.output.must_include "Assertion does not match example. Expected \"2\" to equal \"23\""
+        Docu::ExecutesExamples.new(kernel).execute("TEST_README.md.docu")
+        kernel.output.must_include "Assertion does not match example. Expected \"2\" to equal \"23\""
       end
 
       it "does not write the file" do
-        output_spy = OutputSpy.new
-        Docu::ExecutesExamples.new(output_spy, kernel).execute("TEST_README.md.docu")
+        Docu::ExecutesExamples.new(kernel).execute("TEST_README.md.docu")
         File.exist?("TEST_README.md").must_equal false
       end
 
       it "exits with non-zero exit status" do
-        output_spy = OutputSpy.new
-        executes_examples = Docu::ExecutesExamples.new(output_spy, kernel)
-        Docu::ExecutesExamples.new(output_spy, kernel).execute("TEST_README.md.docu")
+        Docu::ExecutesExamples.new(kernel).execute("TEST_README.md.docu")
         kernel.exit_status.must_equal 1
       end
     end
@@ -94,8 +86,7 @@ module Docu
       end
 
       it "writes out the file removing all :example: and :end: markers" do
-        output_spy = OutputSpy.new
-        Docu::ExecutesExamples.new(output_spy).execute("TEST_README.md.docu")
+        Docu::ExecutesExamples.new(kernel).execute("TEST_README.md.docu")
         File.exist?("TEST_README.md").must_equal true
         contents = File.read("TEST_README.md").to_s
         contents.must_equal "1 + 1\n#=> 2\n"
