@@ -8,7 +8,7 @@ require "docu/rake/task"
 module Docu
   module Rake
     describe Task do
-      before do
+      after do
         File.delete "TEST-README.md.docu" if File.exist? "TEST-README.md.docu"
         File.delete "TEST-README.md" if File.exist? "TEST-README.md"
       end
