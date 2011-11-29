@@ -92,5 +92,22 @@ module Docu
         contents.must_equal "1 + 1\n#=> 2\n"
       end
     end
+
+    describe "one example" do
+      describe "two passing assertions" do
+        it "executes both assertions" do
+          File.open("TEST_README.md.docu", "w") do |file|
+            file.puts ":example:"
+            file.puts "x = 1"
+            file.puts "#=> 1"
+            file.puts "x + 2"
+            file.puts "#=> 3"
+            file.puts ":end:"
+          end
+          Docu::ExecutesExamples.new(kernel).execute("TEST_README.md.docu")
+          File.exist?("TEST_README.md").must_equal true
+        end
+      end
+    end
   end
 end

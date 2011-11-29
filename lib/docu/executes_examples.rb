@@ -1,4 +1,10 @@
 module Docu
+  class ObjectWithBinding
+    def get_binding
+      binding
+    end
+  end
+
   class ExecutesExamples
     def initialize kernel = Kernel
       @kernel = kernel
@@ -12,14 +18,19 @@ module Docu
       contents = File.read(path)
 
       contents.scan(/:example:((?:(?!^:end:).)*)/m).flatten.each do |example|
-        if example =~ /#\s*=>\s*(.+)/
-          expected = $1
-          actual = eval(example).inspect
+        current_binding = ObjectWithBinding.new.get_binding
+        actual = nil
 
-          if actual == expected
-            successes += 1
+        example.lines.each do |line|
+          if line =~ /#\s*=>\s*(.+)/
+            expected = $1
+            if actual == expected
+              successes += 1
+            else
+              errors << "Assertion does not match example. Expected \"#{actual}\" to equal \"#{expected}\""
+            end
           else
-            errors << "Assertion does not match example. Expected \"#{actual}\" to equal \"#{expected}\""
+            actual = eval(line, current_binding).inspect
           end
         end
       end
